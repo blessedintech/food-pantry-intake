@@ -1817,13 +1817,17 @@ function submitForm() {
   // IMPORTANT: Replace this URL with your deployed Apps Script web app URL
   const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbwQ_dbZeqtQqmjvv5jBJqwzMftm5idfKfzLKLW2xPQiPx4srgXWO093HPfmyz7dzvRW/exec';
   
-  fetch(BACKEND_URL, {
+fetch(BACKEND_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify(formData),
+    redirect: 'follow',
   })
-  .then(function(response) { return response.json(); })
-  .then(function(result) {
+  .then(function(response) { return response.text(); })
+  .then(function(text) {
+    try { var result = JSON.parse(text); } catch(e) {
+      console.error('Response was not JSON:', text);
+      throw new Error('Invalid response from server');
+    }
     btn.disabled = false;
     btn.classList.remove('loading');
     if (result.success) {
