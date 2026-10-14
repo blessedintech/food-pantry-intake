@@ -54,8 +54,6 @@ See [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md) for setup instructions and [docs/
 | Pip Moyer Recreation Center | Weekly | Android tablets |
 | Tyler Heights Elementary | Monthly | iPhones |
 
-A third site ID, `marshall_hope`, is configured in the backend but is not yet offered on the form.
-
 ## Versions
 
 | Version | What | Date |
