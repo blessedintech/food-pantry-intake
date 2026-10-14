@@ -45,7 +45,7 @@ The Apps Script files are **reference copies** of what is installed. The live ve
 - `backend/` - the standalone web app (deployment version 13). Handles intake submissions and the checkout app on the same URL. Checkout credentials are stored in Script Properties (`CHECKOUT_USERNAME`, `CHECKOUT_PASSWORD`), never in code.
 - `sheet-bound/` - the script bound to the intake Sheet. Adds the County Forms menu that generates the county's Word intake form and Excel Neighbor Intake Database from their templates.
 
-See [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md) for setup instructions.
+See [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md) for setup instructions and [docs/SHEET_LAYOUT.md](docs/SHEET_LAYOUT.md) for the Sheet columns.
 
 ## Sites
 
@@ -65,7 +65,8 @@ A third site ID, `marshall_hope`, is configured in the backend but is not yet of
 ├── README.md                   # This file
 ├── docs/
 │   ├── SETUP_GUIDE.md          # Setup instructions
-│   └── UPDATING_FORMS.md       # How to update when forms change
+│   ├── UPDATING_FORMS.md       # How to update when forms or templates change
+│   └── SHEET_LAYOUT.md         # Columns of the intake Sheet
 ├── backend/                    # Standalone Apps Script web app
 │   ├── appsscript.json         # Project manifest
 │   ├── Code.gs                 # doPost/doGet; routes checkout actions, then intake
