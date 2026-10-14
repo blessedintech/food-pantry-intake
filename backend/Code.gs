@@ -1,29 +1,34 @@
 /**
  * Food Pantry Digital Intake System
  * Code.gs - Backend API (standalone Apps Script project)
- * 
- * UPDATED for GitHub Pages frontend.
- * The form is now hosted on GitHub Pages. This script acts as the
- * backend API that receives submissions via HTTP POST.
- * 
- * doGet() is no longer needed for serving the form.
- * doPost() receives JSON submissions from the form's fetch() call.
+ *
+ * Handles two kinds of HTTP requests on the same deployment URL:
+ *   1. Intake form submissions from GitHub Pages (existing behavior)
+ *   2. Checkout app actions: login, list, checkout, uncheckout (new)
+ *
+ * Checkout actions are dispatched to routeCheckoutGet_ / routeCheckoutPost_
+ * in CheckoutBackend.gs. Anything that isn't a checkout action falls through
+ * to the original intake form handling.
  */
 
-// Handle POST submissions from the GitHub Pages form
+// ============================================================
+// HTTP entry points
+// ============================================================
+
 function doPost(e) {
   try {
-    // Parse the incoming JSON
+    // Check if this is a checkout app action first.
+    var handled = routeCheckoutPost_(e);
+    if (handled) return handled;
+
+    // Otherwise, treat as intake form submission (original behavior).
     var formData = JSON.parse(e.postData.contents);
-    
-    // Process the submission (same logic as before)
     var result = processFormSubmission(formData);
-    
-    // Return JSON response with CORS headers
+
     return ContentService
       .createTextOutput(JSON.stringify(result))
       .setMimeType(ContentService.MimeType.JSON);
-      
+
   } catch (err) {
     Logger.log('doPost error: ' + err.toString());
     return ContentService
@@ -32,19 +37,22 @@ function doPost(e) {
   }
 }
 
-// Keep doGet() as a simple status page / health check
 function doGet(e) {
-  return ContentService
-    .createTextOutput(JSON.stringify({ 
-      status: 'ok', 
-      message: 'Food Pantry Intake API is running.',
-      version: '2.0',
-      note: 'Form is hosted on GitHub Pages. This endpoint accepts POST submissions.'
-    }))
-    .setMimeType(ContentService.MimeType.JSON);
+  // Checkout app GET endpoints (e.g. ?action=list).
+  var handled = routeCheckoutGet_(e);
+  if (handled) return handled;
+
+  // Fallback: serve the legacy hosted form for anyone who visits the bare URL.
+  return HtmlService.createHtmlOutputFromFile('Index')
+    .setTitle('Food Pantry Intake Form')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
 }
 
-// Process form submission (unchanged from original)
+// ============================================================
+// Intake form submission processor (unchanged from original)
+// ============================================================
+
 function processFormSubmission(formData) {
   try {
     // 1. Validate required fields
@@ -52,17 +60,17 @@ function processFormSubmission(formData) {
     if (errors.length > 0) {
       return { success: false, error: errors.join('; ') };
     }
-    
+
     // 2. Generate row ID
     var rowId = generateRowId();
-    
+
     // 3. Save signature to Drive
     var sigResult = saveSignature(formData.signatureBase64, rowId);
-    
+
     // 4. Build and append row to Sheet
     var row = buildRow(formData, rowId, sigResult);
     appendRow(row);
-    
+
     // 5. Return success with info for confirmation screen
     return {
       success: true,
@@ -70,14 +78,17 @@ function processFormSubmission(formData) {
       householdSize: (formData.children || 0) + (formData.adults || 0) + (formData.seniors || 0),
       patronName: formData.firstName + ' ' + formData.lastName
     };
-    
+
   } catch (e) {
     Logger.log('Error processing submission: ' + e.toString());
     return { success: false, error: 'An error occurred. Please try again.' };
   }
 }
 
-// Custom menu for Sheet UI (only for the BOUND script in the Sheet)
+// ============================================================
+// Spreadsheet UI menu (only fires when opened from a bound sheet)
+// ============================================================
+
 function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu('Food Pantry Tools')
@@ -92,7 +103,7 @@ function showAbout() {
   SpreadsheetApp.getUi().alert(
     'Food Pantry Digital Intake System\n' +
     'Sites: Pip Moyer, Tyler Heights\n' +
-    'Version: 2.0 (GitHub Pages frontend)\n\n' +
+    'Version: 2.1 (Checkout app added)\n\n' +
     'Form hosted at: [Your GitHub Pages URL]\n' +
     'Questions? Contact the project lead.'
   );

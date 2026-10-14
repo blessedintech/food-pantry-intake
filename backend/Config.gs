@@ -20,6 +20,7 @@ var CONFIG = {
   sites: {
     'pip_moyer': 'Pip Moyer Recreation Center',
     'tyler_heights': 'Tyler Heights Elementary',
+    'marshall_hope': 'Marshall Hope',
   },
 };
 

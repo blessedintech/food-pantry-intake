@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  @page { size: letter; margin: 0.75in; }
+  body { font-family: Arial, sans-serif; font-size: 11pt; color: #333; line-height: 1.4; }
+  h2 { font-size: 14pt; color: #1B3A5C; margin: 0 0 12px 0; }
+  h3 { font-size: 12pt; color: #1B3A5C; margin: 16px 0 8px 0; }
+  .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #1B3A5C; padding-bottom: 12px; }
+  .header h2 { margin: 0; }
+  .header p { margin: 4px 0; font-size: 10pt; color: #666; }
+  .field-row { display: flex; margin-bottom: 8px; }
+  .field { flex: 1; }
+  .field-label { font-size: 9pt; color: #666; font-weight: bold; text-transform: uppercase; }
+  .field-value { font-size: 11pt; border-bottom: 1px solid #ccc; padding: 2px 0; min-height: 16px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+  th { background: #1B3A5C; color: white; padding: 6px 8px; font-size: 9pt; text-align: center; }
+  td { padding: 4px 8px; border: 1px solid #ddd; font-size: 10pt; text-align: center; }
+  .selected-cell { background: #2E8B8B; color: white; font-weight: bold; }
+  .highlight-row { background: #FFF8E1; }
+  .checkbox { display: inline-block; width: 14px; height: 14px; border: 1px solid #999; margin-right: 6px; text-align: center; font-size: 10pt; vertical-align: middle; }
+  .checkbox.checked { background: #2E8B8B; color: white; border-color: #2E8B8B; }
+  .status-row { margin: 4px 0; }
+  .cert-text { font-size: 8pt; color: #666; margin: 16px 0 12px 0; line-height: 1.5; padding: 8px; background: #f9f9f9; border: 1px solid #eee; }
+  .sig-section { margin-top: 20px; }
+  .sig-img { max-width: 300px; height: auto; border-bottom: 1px solid #333; }
+  .sig-line { display: flex; justify-content: space-between; margin-top: 4px; }
+  .sig-label { font-size: 9pt; color: #666; }
+  .page-break { page-break-before: always; }
+  .meta { font-size: 8pt; color: #999; text-align: right; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: INTAKE FORM -->
+<div class="header">
+  <h2><?= siteName ?></h2>
+  <p>Food Pantry Intake Form</p>
+</div>
+
+<div class="field-row">
+  <div class="field" style="margin-right:16px">
+    <div class="field-label">First Name</div>
+    <div class="field-value"><?= data['First Name'] || '' ?></div>
+  </div>
+  <div class="field">
+    <div class="field-label">Last Name</div>
+    <div class="field-value"><?= data['Last Name'] || '' ?></div>
+  </div>
+</div>
+
+<div class="field-row">
+  <div class="field">
+    <div class="field-label">Phone</div>
+    <div class="field-value"><?= data['Phone'] || '' ?></div>
+  </div>
+</div>
+
+<div class="field-row">
+  <div class="field" style="margin-right:16px">
+    <div class="field-label">City</div>
+    <div class="field-value"><?= data['City'] || '' ?></div>
+  </div>
+  <div class="field" style="max-width:80px;margin-right:16px">
+    <div class="field-label">State</div>
+    <div class="field-value"><?= data['State'] || '' ?></div>
+  </div>
+  <div class="field" style="max-width:100px">
+    <div class="field-label">Zip Code</div>
+    <div class="field-value"><?= data['Zip Code'] || '' ?></div>
+  </div>
+</div>
+
+<div class="field-row">
+  <div class="field">
+    <div class="field-label">Email</div>
+    <div class="field-value"><?= data['Email'] || '' ?></div>
+  </div>
+</div>
+
+<h3>Household Composition</h3>
+<table>
+  <tr>
+    <th>Household Size</th><th># Children</th><th># Adults</th><th># Seniors</th>
+  </tr>
+  <tr>
+    <td><strong><?= data['Household Size'] || 0 ?></strong></td>
+    <td><?= data['Children'] || 0 ?></td>
+    <td><?= data['Adults'] || 0 ?></td>
+    <td><?= data['Seniors'] || 0 ?></td>
+  </tr>
+</table>
+
+<h3>Status Questions</h3>
+<div class="status-row">
+  Affected by government shutdown? <strong><?= data['Govt Shutdown'] || 'N/A' ?></strong>
+  <? if (data['Shutdown Reason']) { ?> - <?= data['Shutdown Reason'] ?><? } ?>
+</div>
+<div class="status-row">
+  Unhoused? <strong><?= data['Unhoused'] || 'N/A' ?></strong>
+</div>
+
+<? if (data['First Visit']) { ?>
+<h3>Visit Information</h3>
+<div class="status-row">First visit? <strong><?= data['First Visit'] ?></strong></div>
+<? if (data['Referral Source']) { ?><div class="status-row">Referral: <?= data['Referral Source'] ?></div><? } ?>
+<? if (data['Info Changed']) { ?><div class="status-row">Info changed? <strong><?= data['Info Changed'] ?></strong></div><? } ?>
+<? if (data['Change Details']) { ?><div class="status-row">Details: <?= data['Change Details'] ?></div><? } ?>
+<? } ?>
+
+<div class="meta">
+  Record ID: <?= data['Row ID'] || '' ?> | Entry Mode: <?= data['Entry Mode'] || '' ?> | Language: <?= data['Language'] || '' ?>
+</div>
+
+<!-- PAGE 2: INCOME VERIFICATION -->
+<div class="page-break"></div>
+
+<div class="header">
+  <h2>Verification of Customer Revenue and Engagement Data</h2>
+  <p>Anne Arundel County Food Bank - LYF 2026</p>
+</div>
+
+<div class="field-row">
+  <div class="field" style="margin-right:16px">
+    <div class="field-label">First Name</div>
+    <div class="field-value"><?= data['First Name'] || '' ?></div>
+  </div>
+  <div class="field">
+    <div class="field-label">Last Name</div>
+    <div class="field-value"><?= data['Last Name'] || '' ?></div>
+  </div>
+</div>
+
+<div class="field-row">
+  <div class="field" style="max-width:200px;margin-right:16px">
+    <div class="field-label">Total in Household</div>
+    <div class="field-value"><?= data['Household Size'] || 0 ?></div>
+  </div>
+  <div class="field" style="max-width:150px">
+    <div class="field-label">Zip Code</div>
+    <div class="field-value"><?= data['Zip Code'] || '' ?></div>
+  </div>
+</div>
+
+<h3>Household Income</h3>
+<p style="font-size:9pt;color:#666">Income tier selected: <strong><?= data['Income Tier'] || 'N/A' ?></strong></p>
+
+<h3>Race / Ethnicity</h3>
+<div class="field-value"><?= data['Race/Ethnicity'] || 'N/A' ?></div>
+
+<h3>Head of Household Status</h3>
+<div class="status-row">
+  <span class="checkbox <?= data['62+'] === 'X' ? 'checked' : '' ?>"><?= data['62+'] === 'X' ? '✓' : '' ?></span> 62 years or older
+  &nbsp;&nbsp;
+  <span class="checkbox <?= data['Female-Headed'] === 'X' ? 'checked' : '' ?>"><?= data['Female-Headed'] === 'X' ? '✓' : '' ?></span> Female-headed household
+  &nbsp;&nbsp;
+  <span class="checkbox <?= data['Disabled'] === 'X' ? 'checked' : '' ?>"><?= data['Disabled'] === 'X' ? '✓' : '' ?></span> Disabled
+</div>
+<div class="status-row">
+  <span class="checkbox <?= data['Unemployed'] === 'X' ? 'checked' : '' ?>"><?= data['Unemployed'] === 'X' ? '✓' : '' ?></span> Unemployed
+  &nbsp;&nbsp;
+  <span class="checkbox <?= data['Veteran'] === 'X' ? 'checked' : '' ?>"><?= data['Veteran'] === 'X' ? '✓' : '' ?></span> Veteran
+  &nbsp;&nbsp;
+  <span class="checkbox <?= data['Homeless'] === 'X' ? 'checked' : '' ?>"><?= data['Homeless'] === 'X' ? '✓' : '' ?></span> Homeless
+</div>
+<div class="status-row">
+  <span class="checkbox <?= data['Furloughed'] === 'X' ? 'checked' : '' ?>"><?= data['Furloughed'] === 'X' ? '✓' : '' ?></span> Furloughed Government Worker
+  &nbsp;&nbsp;
+  <span class="checkbox <?= data['SNAP'] === 'X' ? 'checked' : '' ?>"><?= data['SNAP'] === 'X' ? '✓' : '' ?></span> Receives SNAP
+</div>
+
+<div class="cert-text">
+I hereby certify that the above information is true and correct to the best of my knowledge. I, the undersigned, agree and acknowledge that the information provided is true and correct as of the date outlined in front of my signature. I acknowledge that a material misstatement made fraudulently or negligently in this, or any other statement made by me may constitute a federal violation and may result in my denial of participation in this program. I also understand that this agency, A.A. Co. Partnership for Children, Youth and Families, or Anne Arundel County Government may at any time request to see documentation that can verify that the income and information reported on this form is accurate and correct.
+</div>
+
+<div class="sig-section">
+  <? if (sigBase64) { ?>
+    <img class="sig-img" src="data:image/png;base64,<?= sigBase64 ?>" alt="Signature">
+  <? } else { ?>
+    <div style="border-bottom:1px solid #333;width:300px;height:60px"></div>
+  <? } ?>
+  <div class="sig-line">
+    <div>
+      <div class="sig-label">Head of Household Signature</div>
+    </div>
+    <div>
+      <div class="field-value" style="min-width:150px"><?= data['Timestamp'] || '' ?></div>
+      <div class="sig-label">Date</div>
+    </div>
+  </div>
+</div>
+
+<div class="meta">
+  The form must be completed by the participant or by the parent or guardian of a child under the age of 18.
+</div>
+
+</body>
+</html>
