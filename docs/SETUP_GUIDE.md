@@ -181,7 +181,7 @@ Reload the Sheet. The **County Forms** menu appears with:
 
 Generated files land in the output folder. For county filing, generate the Excel file once per site; the All Sites option counts distributions per site, so its total is not a sum of both sites.
 
-Note: the bound project also has a separate `onOpen` in `Code.gs` that adds a **Food Pantry Tools** menu. Apps Script runs only one `onOpen` per project, so only one of the two menus appears.
+The same reload also adds a **Food Pantry Tools** menu for the per-row PDF. Both menus are built by the one `onOpen` function in `Code.gs`; Apps Script runs only one `onOpen` per project, so do not add another.
 
 ---
 
@@ -241,7 +241,7 @@ Use any free QR code generator (qr-code-generator.com, etc.) to create and print
 | Checkout login fails | `CHECKOUT_USERNAME` / `CHECKOUT_PASSWORD` missing from Script Properties, or `APPS_SCRIPT_URL` wrong in checkout.html |
 | Checkout shows no or the wrong neighbors | `INTAKE_SPREADSHEET_ID` in CheckoutBackend.gs points at the wrong Sheet |
 | PERMISSION_DENIED when generating a report | A template or the output folder isn't shared with the script account. Run `diagnose` / `diagnoseXlsx` |
-| County Forms menu missing | Reload the Sheet; see the `onOpen` note in Part 4 |
+| County Forms menu missing | Reload the Sheet. If it is still missing, check that only `Code.gs` defines `onOpen` (see Part 4) |
 | `getUi().alert()` error when running from the editor | Run report functions from the Sheet's menu, not the editor |
 | File access errors in the Apps Script editor | You're signed into the wrong Google account in that browser tab |
 

@@ -661,7 +661,7 @@
   <div class="grid" id="grid"></div>
   <div class="state-msg" id="empty-state" style="display:none;">
     <div class="state-msg-icon" id="empty-icon">📋</div>
-    <div class="state-msg-title" id="empty-title">No patrons yet</div>
+    <div class="state-msg-title" id="empty-title">No neighbors yet</div>
     <div class="state-msg-detail" id="empty-detail">New intake submissions will appear here automatically.</div>
   </div>
 </main>
@@ -703,7 +703,7 @@
   let selectedDate = todayDateKey();
   let pollTimer = null;
   let inflightCheckout = new Set();
-  let lastChangedRowId = null;
+  let lastChangedKey = null;
   let lastChangedAt = 0;
   let pendingAction = null;
   let authToken = null;
@@ -1041,13 +1041,19 @@
     grid.innerHTML = view.map(r => renderCard(r)).join('');
 
     Array.from(grid.querySelectorAll('.card')).forEach(el => {
-      el.addEventListener('click', () => onCardTap(el.dataset.rowId));
+      el.addEventListener('click', () => onCardTap(el.dataset.key));
     });
+  }
+
+  // A card's identity. sheetRow is unique even when two rows share a Row ID;
+  // Row ID is the fallback if the backend doesn't send sheetRow.
+  function cardKey(r) {
+    return r.sheetRow ? 'row' + r.sheetRow : String(r.rowId);
   }
 
   function renderCard(r) {
     const complete = !!r.checkedOutAt;
-    const flash = (r.rowId === lastChangedRowId && Date.now() - lastChangedAt < 1500)
+    const flash = (cardKey(r) === lastChangedKey && Date.now() - lastChangedAt < 1500)
       ? ' just-changed' : '';
     const name = escapeHtml(`${r.firstName} ${r.lastName}`.trim() || '(no name)');
     const hh = Number(r.householdSize) || 0;
@@ -1055,7 +1061,7 @@
       ? `Checked out ${formatTime(r.checkedOutAt)}`
       : `Submitted ${formatTime(r.timestamp)}`;
     return `
-      <div class="card${complete ? ' complete' : ''}${flash}" data-row-id="${escapeHtml(r.rowId)}">
+      <div class="card${complete ? ' complete' : ''}${flash}" data-key="${escapeHtml(cardKey(r))}">
         <div class="card-info">
           <div class="card-name">${name}</div>
           <div class="card-meta">${meta}</div>
@@ -1074,13 +1080,13 @@
       if (!todayMode) {
         return {
           icon: '📅',
-          title: 'No patrons on this date',
+          title: 'No neighbors on this date',
           detail: 'No intake submissions were recorded for the selected day.'
         };
       }
       return {
         icon: '📋',
-        title: 'No patrons yet',
+        title: 'No neighbors yet',
         detail: 'New intake submissions will appear here automatically.'
       };
     }
@@ -1164,19 +1170,19 @@
       if (e.target.id === 'modal-backdrop') closeModal();
     });
     document.getElementById('modal-confirm').addEventListener('click', () => {
-      if (pendingAction) performCheckout(pendingAction.rowId, pendingAction.currentlyComplete);
+      if (pendingAction) performCheckout(pendingAction.key, pendingAction.currentlyComplete);
       closeModal();
     });
   }
 
-  function onCardTap(rowId) {
-    if (inflightCheckout.has(rowId)) return;
-    const row = rows.find(r => r.rowId === rowId);
+  function onCardTap(key) {
+    if (inflightCheckout.has(key)) return;
+    const row = rows.find(r => cardKey(r) === key);
     if (!row) return;
 
     const currentlyComplete = !!row.checkedOutAt;
     if (currentlyComplete) {
-      pendingAction = { rowId, currentlyComplete };
+      pendingAction = { key, currentlyComplete };
       openModal({
         title: 'Mark as not checked out?',
         body: `This will move ${row.firstName} ${row.lastName} back to Remaining.`,
@@ -1184,19 +1190,19 @@
         danger: true
       });
     } else {
-      performCheckout(rowId, currentlyComplete);
+      performCheckout(key, currentlyComplete);
     }
   }
 
-  async function performCheckout(rowId, currentlyComplete) {
-    inflightCheckout.add(rowId);
+  async function performCheckout(key, currentlyComplete) {
+    inflightCheckout.add(key);
 
-    const row = rows.find(r => r.rowId === rowId);
+    const row = rows.find(r => cardKey(r) === key);
     const originalCheckedOutAt = row ? row.checkedOutAt : '';
     if (row) {
       row.checkedOutAt = currentlyComplete ? '' : new Date().toISOString();
     }
-    lastChangedRowId = rowId;
+    lastChangedKey = key;
     lastChangedAt = Date.now();
     render();
 
@@ -1206,7 +1212,8 @@
         redirect: 'follow',
         body: JSON.stringify({
           action: currentlyComplete ? 'uncheckout' : 'checkout',
-          rowId: rowId,
+          rowId: row ? row.rowId : '',
+          sheetRow: row ? row.sheetRow : undefined,
           token: authToken
         })
       });
@@ -1231,7 +1238,7 @@
       showToast(`Could not update - ${err.message}. Try again.`, true);
       console.warn('Checkout failed:', err);
     } finally {
-      inflightCheckout.delete(rowId);
+      inflightCheckout.delete(key);
     }
   }
 

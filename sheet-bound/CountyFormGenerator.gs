@@ -24,7 +24,8 @@ var COL = {
   SIG_FILE_ID:32, SIG_URL:33, PDF_FILE_ID:34, SITE_ID:35
 };
 
-function onOpen() {
+// Called from onOpen in Code.gs.
+function addCountyFormsMenu_() {
   SpreadsheetApp.getUi().createMenu('County Forms')
     .addItem('Generate County Intake Form (DOCX)...', 'showDatePickerDialog')
     .addItem('Generate Neighbor Intake Database (XLSX)...', 'showXlsxDialog')
