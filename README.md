@@ -56,6 +56,14 @@ See [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md) for setup instructions and [docs/
 
 A third site ID, `marshall_hope`, is configured in the backend but is not yet offered on the form.
 
+## Versions
+
+| Version | What | Date |
+|---------|------|------|
+| v1.0 | `index.html` (intake form) and `checkout.html` (checkout app), as live on GitHub Pages. Both post to the Apps Script web app at deployment version 13. | Live since 2026-05-21, tagged 2026-10-14 |
+
+Each version is a git tag and a GitHub release. The `backend/` and `sheet-bound/` folders are reference copies of the installed Apps Script code; their versions are tracked by Apps Script deployment number, not by these tags.
+
 ## File Structure
 
 ```
