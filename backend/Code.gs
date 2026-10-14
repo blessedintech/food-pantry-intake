@@ -61,15 +61,22 @@ function processFormSubmission(formData) {
       return { success: false, error: errors.join('; ') };
     }
 
-    // 2. Generate row ID
-    var rowId = generateRowId();
-
-    // 3. Save signature to Drive
-    var sigResult = saveSignature(formData.signatureBase64, rowId);
-
-    // 4. Build and append row to Sheet
-    var row = buildRow(formData, rowId, sigResult);
-    appendRow(row);
+    // 2-4. Generate the Row ID, save the signature and append the row while
+    // holding the script lock, so two submissions arriving at the same moment
+    // can't be given the same Row ID. waitLock throws after 30s, which lands
+    // in the catch below and asks the neighbor to try again.
+    var rowId;
+    var lock = LockService.getScriptLock();
+    lock.waitLock(30000);
+    try {
+      rowId = generateRowId();
+      var sigResult = saveSignature(formData.signatureBase64, rowId);
+      var row = buildRow(formData, rowId, sigResult);
+      appendRow(row);
+      SpreadsheetApp.flush();
+    } finally {
+      lock.releaseLock();
+    }
 
     // 5. Return success with info for confirmation screen
     return {

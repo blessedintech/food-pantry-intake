@@ -7,8 +7,13 @@
  * Endpoints (all on the same web-app URL):
  *   POST {action:'login', username, password}                  -> {ok, token, expiresAt}
  *   GET  ?action=list&token=...&date=YYYYMMDD                  -> {ok, rows, date}
- *   POST {action:'checkout',   token, rowId}                   -> {ok, checkedOutAt}
- *   POST {action:'uncheckout', token, rowId}                   -> {ok, checkedOutAt:''}
+ *   POST {action:'checkout',   token, rowId, sheetRow}         -> {ok, checkedOutAt}
+ *   POST {action:'uncheckout', token, rowId, sheetRow}         -> {ok, checkedOutAt:''}
+ *
+ * Each listed row carries its sheetRow (physical row number). Checkout and
+ * uncheckout use sheetRow, confirmed against rowId, so two rows that share a
+ * Row ID are never confused. Requests without sheetRow (older checkout.html)
+ * fall back to matching rowId.
  *   POST {action:'logout', token}                              -> {ok}
  *
  * CREDENTIALS are stored in Script Properties (Project Settings > Script
@@ -78,7 +83,7 @@ function routeCheckoutPost_(e) {
     if (authError) return jsonResponse_(authError);
 
     var isCheckout = data.action === 'checkout';
-    return jsonResponse_(markCheckedOut_(data.rowId, isCheckout));
+    return jsonResponse_(markCheckedOut_(data.rowId, isCheckout, data.sheetRow));
   }
 
   // Not a checkout-related action - fall through to Code.gs intake handler.
@@ -223,6 +228,7 @@ function getIntakeRowsForDate_(dateKey) {
 
     rows.push({
       rowId: rowId,
+      sheetRow: i + 1,
       timestamp: (row[COL_TIMESTAMP - 1] instanceof Date)
         ? row[COL_TIMESTAMP - 1].toISOString()
         : String(row[COL_TIMESTAMP - 1] || ''),
@@ -240,7 +246,7 @@ function getIntakeRowsForDate_(dateKey) {
 // DATA: mark / unmark checked out
 // ============================================================
 
-function markCheckedOut_(rowId, checked) {
+function markCheckedOut_(rowId, checked, sheetRow) {
   if (!rowId) {
     return { ok: false, error: 'Missing rowId' };
   }
@@ -255,15 +261,28 @@ function markCheckedOut_(rowId, checked) {
 
   var rowIds = sheet.getRange(2, COL_ROW_ID, lastRow - 1, 1).getValues();
   var targetRow = -1;
-  for (var i = 0; i < rowIds.length; i++) {
-    if (String(rowIds[i][0]) === String(rowId)) {
-      targetRow = i + 2;
-      break;
-    }
+
+  // Preferred: the exact row the checkout screen listed, if it still holds
+  // this Row ID (rows can move if someone sorts or deletes in the Sheet).
+  var wanted = Number(sheetRow);
+  if (wanted >= 2 && wanted <= lastRow &&
+      String(rowIds[wanted - 2][0]) === String(rowId)) {
+    targetRow = wanted;
   }
 
   if (targetRow === -1) {
-    return { ok: false, error: 'Row ID not found: ' + rowId };
+    var matches = [];
+    for (var i = 0; i < rowIds.length; i++) {
+      if (String(rowIds[i][0]) === String(rowId)) matches.push(i + 2);
+    }
+    if (matches.length === 0) {
+      return { ok: false, error: 'Row ID not found: ' + rowId };
+    }
+    if (matches.length > 1 && sheetRow) {
+      // The listed row moved and this Row ID is shared - don't guess.
+      return { ok: false, error: 'The list is out of date. Refresh and try again' };
+    }
+    targetRow = matches[0];
   }
 
   if (checked) {

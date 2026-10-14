@@ -48,11 +48,11 @@ Columns A to AJ are created by `setupSheetHeaders()` in `SheetManager.gs`.
 
 ## Row ID
 
-The Row ID is the date of the submission plus a number, for example `20261009_3970`. In the version deployed today the number is the Sheet's row count at the moment of submission, so it keeps climbing across days rather than restarting each day.
+The Row ID is the date of the submission plus a number that restarts at 001 each day, for example `20261016_001`. Each submission takes the highest number already used that day and adds 1. The number is assigned while the backend holds a lock, so two submissions arriving at the same moment get different numbers.
 
-The county report generators find a date's rows by the first 8 characters of the Row ID. Checkout finds the row to mark served by matching the full Row ID.
+Rows written before v1.1 was deployed use the older scheme, where the number is the Sheet's row count (for example `20261009_3970`), and some of those Row IDs are duplicated. They are left as they are.
 
-**Known issue:** two submissions that arrive at almost the same moment can receive the same Row ID, because nothing stops them from reading the row count at the same time. Duplicate Row IDs exist in the Sheet. When two rows share a Row ID, Checkout marks the first one it finds.
+The county report generators find a date's rows by the first 8 characters of the Row ID. Checkout lists each row with its sheet row number and marks that exact row, after checking it still holds the expected Row ID. If someone has sorted or deleted rows in the Sheet so the row moved, Checkout falls back to the Row ID, and asks for a refresh if that Row ID is shared.
 
 ## Paper Entries
 

@@ -2,7 +2,7 @@
 // Neighbor Intake Database (XLSX) Generator
 // ============================================================
 // Fills the county's Neighbor Intake Database FY26 template with
-// patron data filtered by month and site. Preserves all existing
+// neighbor data filtered by month and site. Preserves all existing
 // formulas in the template (Unique Data, Duplicated Data, etc.)
 //
 // v2 changes (May 2026):

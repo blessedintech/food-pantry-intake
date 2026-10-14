@@ -28,13 +28,27 @@ function validateForm(data) {
   return errors;
 }
 
-// Generate unique row ID: YYYYMMDD_NNN
+// Generate unique row ID: YYYYMMDD_NNN, where NNN restarts at 001 each day.
+// Takes the highest number already used today and adds 1, so deleted rows
+// can't cause a repeat. Must be called while holding the script lock
+// (see processFormSubmission in Code.gs).
 function generateRowId() {
   var now = new Date();
   var date = Utilities.formatDate(now, Session.getScriptTimeZone(), 'yyyyMMdd');
   var sheet = getDataSheet();
   var lastRow = sheet.getLastRow();
-  var seq = String(lastRow).padStart(3, '0');
+  var maxSeq = 0;
+  if (lastRow >= 2) {
+    var ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+    for (var i = 0; i < ids.length; i++) {
+      var id = String(ids[i][0] || '');
+      if (id.substring(0, 9) === date + '_') {
+        var n = parseInt(id.substring(9), 10);
+        if (n > maxSeq) maxSeq = n;
+      }
+    }
+  }
+  var seq = String(maxSeq + 1).padStart(3, '0');
   return date + '_' + seq;
 }
 

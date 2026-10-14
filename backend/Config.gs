@@ -2,7 +2,7 @@
  * Config.gs - Configuration for single deployment serving all sites
  * 
  * One Apps Script project, one Sheet, one set of Drive folders.
- * The site is selected by the patron/volunteer on the form.
+ * The site is selected by the neighbor or volunteer on the form.
  */
 
 var CONFIG = {
