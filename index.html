@@ -863,6 +863,8 @@
         <option value="">-- Select Location --</option>
         <option value="pip_moyer">Pip Moyer Recreation Center</option>
         <option value="tyler_heights">Tyler Heights Elementary</option>
+        <option value="eastport_library">Eastport-Annapolis Neck Library</option>
+        <option value="bay_forest">Bay Forest Senior Apartments</option>
       </select>
       <div class="error-msg" id="siteError"></div>
     </div>
@@ -1222,6 +1224,8 @@ const T = {
     selectLocation: "-- Select Location --",
     sitePipMoyer: "Pip Moyer Recreation Center",
     siteTylerHeights: "Tyler Heights Elementary",
+    siteEastportLibrary: "Eastport-Annapolis Neck Library",
+    siteBayForest: "Bay Forest Senior Apartments",
     valSite: "Please select a location",
     certificationText: "I hereby certify that the above information is true and correct to the best of my knowledge. I, the undersigned, agree and acknowledge that the information provided is true and correct as of the date outlined in front of my signature. I acknowledge that a material misstatement made fraudulently or negligently in this, or any other statement made by me may constitute a federal violation and may result in my denial of participation in this program. I also understand that this agency, A.A. Co. Partnership for Children, Youth and Families, or Anne Arundel County Government may at any time request to see documentation that can verify that the income and information reported on this form is accurate and correct.",
     consentText: "I consent to the digital collection and storage of the information provided on this form for the purpose of food assistance services and required county reporting.",
@@ -1312,6 +1316,8 @@ const T = {
     selectLocation: "-- Seleccione Ubicaci\u00f3n --",
     sitePipMoyer: "Pip Moyer Recreation Center",
     siteTylerHeights: "Tyler Heights Elementary",
+    siteEastportLibrary: "Eastport-Annapolis Neck Library",
+    siteBayForest: "Bay Forest Senior Apartments",
     valSite: "Por favor seleccione una ubicaci\u00f3n",
     certificationText: "Por la presente certifico que la informaci\u00f3n anterior es verdadera y correcta a mi leal saber y entender. Yo, el abajo firmante, acepto y reconozco que la informaci\u00f3n proporcionada es verdadera y correcta a la fecha establecida frente a mi firma. Reconozco que una declaraci\u00f3n err\u00f3nea sustancial hecha de manera fraudulenta o negligente en esta o en cualquier otra declaraci\u00f3n hecha por m\u00ed puede constituir una violaci\u00f3n federal y puede resultar en la denegaci\u00f3n de mi participaci\u00f3n en este programa. Tambi\u00e9n entiendo que esta agencia, A.A. Co. Partnership for Children, Youth and Families o el gobierno del condado de Anne Arundel pueden solicitar en cualquier momento ver documentaci\u00f3n que pueda verificar que los ingresos y la informaci\u00f3n reportados en este formulario son precisos y correctos.",
     consentText: "Doy mi consentimiento para la recolecci\u00f3n y almacenamiento digital de la informaci\u00f3n proporcionada en este formulario con el prop\u00f3sito de servicios de asistencia alimentaria e informes requeridos por el condado.",
@@ -1405,6 +1411,8 @@ function applyLanguage() {
   siteSelect.options[0].text = lang.selectLocation;
   siteSelect.options[1].text = lang.sitePipMoyer;
   siteSelect.options[2].text = lang.siteTylerHeights;
+  siteSelect.options[3].text = lang.siteEastportLibrary;
+  siteSelect.options[4].text = lang.siteBayForest;
   // Certification text
   document.getElementById('certText').textContent = lang.certificationText;
   document.getElementById('consentText').textContent = lang.consentText;
